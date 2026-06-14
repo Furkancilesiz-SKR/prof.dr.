@@ -254,6 +254,7 @@ h2.s-title .gold{color:var(--gold-lt);}
   position:absolute;width:70%;aspect-ratio:1;
   border-radius:50%;border:1px solid var(--gold-dim);
 }
+
 .id-body{padding:1.25rem 1.5rem;}
 .id-row{
   display:flex;justify-content:space-between;align-items:baseline;
@@ -318,6 +319,7 @@ h2.s-title .gold{color:var(--gold-lt);}
   transition:transform 0.35s;
 }
 .int-card:hover::before{transform:scaleX(1);}
+
 .int-card .bg-num{
   position:absolute;bottom:-1rem;right:0.5rem;
   font-family:'Cinzel',serif;font-size:7rem;font-weight:900;
@@ -374,14 +376,16 @@ h2.s-title .gold{color:var(--gold-lt);}
   font-family:'IBM Plex Mono',monospace;
   margin-top:0.15rem;
 }
+
 .contact-chip{
   display:inline-flex;align-items:center;gap:0.6rem;
   margin-top:2rem;
   border:1.5px solid var(--green);color:var(--green);
+  background:transparent;
   padding:0.7rem 1.4rem;border-radius:3px;
   text-decoration:none;font-size:0.85rem;
   font-family:'IBM Plex Mono',monospace;letter-spacing:0.06em;
-  transition:all 0.2s;
+  transition:all 0.2s; cursor:pointer;
 }
 .contact-chip:hover{background:var(--green-dim);}
 .contact-chip::before{content:'→';}
@@ -424,6 +428,74 @@ h2.s-title .gold{color:var(--gold-lt);}
   font-size:1.15rem;font-style:italic;
   color:var(--parchment);line-height:1.7;
 }
+
+/* ── MODAL (İLETİŞİM KUTUSU) ── */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(11, 21, 38, 0.85); /* Navy background with opacity */
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex; justify-content: center; align-items: center;
+  opacity: 0; visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+}
+.modal-overlay.active {
+  opacity: 1; visibility: visible;
+}
+.modal-content {
+  background: var(--navy-3);
+  padding: 3rem 2.5rem;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--gold);
+  max-width: 90%;
+  width: 420px;
+  position: relative;
+  transform: translateY(20px);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 24px 48px rgba(0,0,0,0.4);
+}
+.modal-overlay.active .modal-content {
+  transform: translateY(0);
+}
+.modal-close {
+  position: absolute; top: 1rem; right: 1.2rem;
+  background: none; border: none; font-size: 2rem; line-height: 1;
+  color: var(--text-dim); cursor: pointer;
+  transition: color 0.2s;
+}
+.modal-close:hover { color: var(--gold-lt); }
+.modal-title {
+  font-family: 'Cinzel', serif;
+  font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem;
+  text-align: center; color: #EEF2F7;
+}
+.modal-desc {
+  font-size: 0.9rem; color: var(--text-dim); text-align: center;
+  margin-bottom: 2.5rem; line-height: 1.6;
+}
+.contact-details {
+  display: flex; flex-direction: column; gap: 1rem;
+}
+.contact-item {
+  display: flex; align-items: center; gap: 1.2rem;
+  background: var(--navy-2); padding: 1.2rem; border-radius: 3px;
+  border: 1px solid var(--border);
+  transition: border-color 0.2s, transform 0.2s;
+}
+.contact-item:hover { transform: translateY(-2px); border-color: var(--green); }
+.contact-icon { font-size: 1.8rem; }
+.contact-item-info { display: flex; flex-direction: column; overflow: hidden; }
+.contact-item-info strong { 
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; 
+  color: var(--gold); margin-bottom: 0.2rem; 
+}
+.contact-item-info a { 
+  color: var(--text); text-decoration: none; font-weight: 500; font-size: 0.95rem; 
+  transition: color 0.2s; word-break: break-word; 
+}
+.contact-item-info a:hover { color: var(--green); }
 
 /* ── FOOTER ── */
 footer{
@@ -648,7 +720,8 @@ footer{
       <p>
         Birlikte çalışmayı sadece para kazanmak için değil, birbirimizden öğrenmek ve gerçek bir şey inşa etmek için doğal buluyorum. Yaşım genç ama kafam açık ve enerjim tam.
       </p>
-      <a href="mailto:furkan@example.com" class="contact-chip">İletişime Geç</a>
+      <!-- Buton linkten normal bir butona çevrildi ve id eklendi -->
+      <button id="open-contact-modal" class="contact-chip">İletişime Geç</button>
     </div>
     <div class="partner-panel">
       <div class="partner-panel-title">Neyle katkı sunabilirim?</div>
@@ -703,6 +776,31 @@ footer{
     <span style="font-size:0.8rem;font-family:'IBM Plex Mono',monospace;color:var(--gold);letter-spacing:0.1em;font-style:normal;"> — Furkan Çilesiz</span>
   </div>
 </section>
+
+<!-- CONTACT MODAL -->
+<div id="contact-modal" class="modal-overlay">
+  <div class="modal-content">
+    <button id="close-contact-modal" class="modal-close">&times;</button>
+    <h3 class="modal-title">İletişim Kurun</h3>
+    <p class="modal-desc">Ortaklık, proje fikirleri veya herhangi bir konuda bana aşağıdaki kanallardan ulaşabilirsiniz.</p>
+    <div class="contact-details">
+      <div class="contact-item">
+        <span class="contact-icon">📧</span>
+        <div class="contact-item-info">
+          <strong>E-posta</strong>
+          <a href="mailto:furkancilesiz7890@gmail.com">furkancilesiz7890@gmail.com</a>
+        </div>
+      </div>
+      <div class="contact-item">
+        <span class="contact-icon">📱</span>
+        <div class="contact-item-info">
+          <strong>Telefon</strong>
+          <a href="tel:+905550000000">+90 (555) 000 00 00</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- FOOTER -->
 <footer>
@@ -812,6 +910,34 @@ const obs = new IntersectionObserver(entries=>{
   entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});
 },{threshold:0.1});
 document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+/* ── MODAL LOGIC ── */
+(function() {
+  const modal = document.getElementById('contact-modal');
+  const openBtn = document.getElementById('open-contact-modal');
+  const closeBtn = document.getElementById('close-contact-modal');
+
+  // Butona tıklandığında kutuyu aç
+  if (openBtn && modal) {
+    openBtn.addEventListener('click', () => {
+      modal.classList.add('active');
+    });
+  }
+
+  // Çarpı ikonuna tıklandığında kutuyu kapat
+  if (closeBtn && modal) {
+    closeBtn.addEventListener('click', () => {
+      modal.classList.remove('active');
+    });
+  }
+
+  // Kutunun dışına (arka plana) tıklandığında kutuyu kapat
+  window.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.classList.remove('active');
+    }
+  });
+})();
 </script>
 </body>
 </html>
