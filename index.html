@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Furkan Çilesiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=IBM+Plex+Sans:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+:root{
+  --navy:      #0B1526;
+  --navy-2:    #111F35;
+  --navy-3:    #172844;
+  --gold:      #B8922A;
+  --gold-lt:   #D4AA4A;
+  --gold-dim:  rgba(184,146,42,0.18);
+  --green:     #3DBA7D;
+  --green-dim: rgba(61,186,125,0.12);
+  --parchment: #D4C5A9;
+  --text:      #C8D4E0;
+  --text-dim:  rgba(200,212,224,0.55);
+  --border:    rgba(184,146,42,0.2);
+}
+
+html{scroll-behavior:smooth;}
+
+body{
+  font-family:'IBM Plex Sans',sans-serif;
+  background:var(--navy);
+  color:var(--text);
+  line-height:1.7;
+  overflow-x:hidden;
+}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:1.1rem 5vw;
+  background:rgba(11,21,38,0.88);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+}
+.nav-logo{
+  font-family:'Cinzel',serif;
+  font-weight:900;font-size:1rem;
+  letter-spacing:0.25em;text-transform:uppercase;
+  color:var(--gold-lt);text-decoration:none;
+}
+.nav-logo span{color:var(--green);}
+.nav-links{display:flex;gap:2rem;list-style:none;}
+.nav-links a{
+  text-decoration:none;font-size:0.75rem;
+  font-family:'IBM Plex Mono',monospace;
+  letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--text-dim);transition:color 0.2s;
+}
+.nav-links a:hover{color:var(--green);}
+
+/* ── HERO ── */
+#hero{
+  min-height:100vh;
+  display:flex;align-items:center;
+  padding:0 5vw;
+  position:relative;overflow:hidden;
+}
+
+/* SVG map grid canvas — drawn by JS */
+#map-canvas{
+  position:absolute;inset:0;width:100%;height:100%;
+  opacity:0.55;pointer-events:none;
+}
+
+/* Vignette */
+#hero::after{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 70% 80% at 30% 50%, transparent 30%, rgba(11,21,38,0.92) 100%);
+  pointer-events:none;
+}
+
+.hero-inner{
+  position:relative;z-index:2;
+  max-width:750px;padding-top:5rem;
+}
+.hero-coord{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:0.75rem;letter-spacing:0.14em;
+  color:var(--gold);opacity:0.7;
+  margin-bottom:1.5rem;
+}
+.hero-coord .blink{
+  animation:blink 1.2s step-end infinite;
+  color:var(--green);
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+h1.hero-name{
+  font-family:'Cinzel',serif;
+  font-weight:900;
+  font-size:clamp(2.8rem,7vw,6rem);
+  line-height:1.0;
+  letter-spacing:0.04em;
+  color:#EEF2F7;
+  margin-bottom:0.3rem;
+}
+h1.hero-name .accent{color:var(--gold-lt);}
+
+.hero-sub{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:clamp(0.9rem,1.6vw,1.1rem);
+  color:var(--green);
+  letter-spacing:0.06em;
+  margin-bottom:2rem;
+  min-height:1.8em;
+}
+.hero-sub .cursor{
+  display:inline-block;width:0.6em;height:1.1em;
+  background:var(--green);margin-left:2px;
+  vertical-align:middle;animation:blink 0.9s step-end infinite;
+}
+
+.hero-tags{display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:2.5rem;}
+.h-tag{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:0.72rem;letter-spacing:0.08em;
+  padding:0.3rem 0.8rem;
+  border:1px solid var(--border);border-radius:2px;
+  color:var(--text-dim);
+  transition:all 0.2s;
+}
+.h-tag:hover{border-color:var(--green);color:var(--green);}
+
+.hero-cta{display:flex;gap:1rem;flex-wrap:wrap;}
+.btn-gold{
+  background:var(--gold);color:var(--navy);
+  padding:0.85rem 2rem;border-radius:3px;
+  text-decoration:none;
+  font-family:'IBM Plex Sans',sans-serif;
+  font-size:0.88rem;font-weight:500;letter-spacing:0.06em;
+  transition:background 0.2s;
+}
+.btn-gold:hover{background:var(--gold-lt);}
+.btn-outline{
+  border:1.5px solid var(--gold);color:var(--gold);
+  padding:0.85rem 1.75rem;border-radius:3px;
+  text-decoration:none;
+  font-size:0.88rem;font-weight:500;letter-spacing:0.06em;
+  transition:all 0.2s;
+}
+.btn-outline:hover{background:var(--gold-dim);}
+
+/* ── HERO SIDE PANEL ── */
+.hero-panel{
+  position:absolute;right:5vw;top:50%;transform:translateY(-50%);
+  z-index:2;
+  display:flex;flex-direction:column;gap:1rem;
+  width:min(280px, 28vw);
+}
+.panel-card{
+  background:rgba(17,31,53,0.85);
+  border:1px solid var(--border);
+  border-left:3px solid var(--gold);
+  padding:1.2rem 1.4rem;
+  border-radius:2px;
+}
+.panel-label{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:0.65rem;letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:0.4rem;
+}
+.panel-value{
+  font-family:'Cinzel',serif;
+  font-size:1.6rem;font-weight:600;
+  color:#EEF2F7;line-height:1;
+}
+.panel-sub{
+  font-size:0.75rem;color:var(--text-dim);margin-top:0.2rem;
+}
+
+/* ── SECTION COMMONS ── */
+section{padding:7rem 5vw;}
+.s-label{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:0.7rem;letter-spacing:0.22em;text-transform:uppercase;
+  color:var(--green);
+  display:flex;align-items:center;gap:0.8rem;
+  margin-bottom:0.8rem;
+}
+.s-label::before{
+  content:'//';font-weight:500;
+}
+h2.s-title{
+  font-family:'Cinzel',serif;
+  font-size:clamp(1.8rem,3.5vw,2.8rem);
+  font-weight:700;line-height:1.15;
+  color:#EEF2F7;margin-bottom:0.8rem;
+  letter-spacing:0.02em;
+}
+h2.s-title .gold{color:var(--gold-lt);}
+.s-sub{
+  font-size:0.95rem;color:var(--text-dim);
+  max-width:42rem;line-height:1.85;margin-bottom:3rem;
+}
+.divider{
+  height:1px;
+  background:linear-gradient(90deg,var(--gold-dim),transparent);
+  margin-bottom:4rem;
+}
+
+/* ── ABOUT ── */
+#about{background:var(--navy-2);}
+.about-grid{display:grid;grid-template-columns:1fr 1.5fr;gap:5rem;align-items:start;}
+.about-id-card{
+  background:var(--navy-3);
+  border:1px solid var(--border);
+  border-radius:4px;
+  overflow:hidden;
+  position:sticky;top:6rem;
+}
+.id-header{
+  background:var(--gold);
+  padding:1rem 1.5rem;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.id-header-title{
+  font-family:'Cinzel',serif;
+  font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;
+  color:var(--navy);font-weight:600;
+}
+.id-header-num{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:0.65rem;color:var(--navy);opacity:0.6;
+}
+.id-avatar{
+  width:100%;aspect-ratio:1/1;
+  background:var(--navy);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Cinzel',serif;font-size:5rem;font-weight:900;
+  color:rgba(184,146,42,0.1);letter-spacing:-0.05em;
+  border-bottom:1px solid var(--border);
+  position:relative;overflow:hidden;
+}
+.id-avatar .cross-h{
+  position:absolute;top:50%;left:0;right:0;
+  height:1px;background:var(--gold-dim);
+}
+.id-avatar .cross-v{
+  position:absolute;left:50%;top:0;bottom:0;
+  width:1px;background:var(--gold-dim);
+}
+.id-avatar .circle-ring{
+  position:absolute;width:70%;aspect-ratio:1;
+  border-radius:50%;border:1px solid var(--gold-dim);
+}
+.id-body{padding:1.25rem 1.5rem;}
+.id-row{
+  display:flex;justify-content:space-between;align-items:baseline;
+  padding:0.6rem 0;border-bottom:1px solid rgba(184,146,42,0.08);
+  font-size:0.82rem;
+}
+.id-row:last-child{border-bottom:none;}
+.id-row .key{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:0.68rem;letter-spacing:0.1em;
+  color:var(--gold);text-transform:uppercase;
+}
+.id-row .val{color:var(--text);}
+.badge-row{
+  display:flex;gap:0.5rem;flex-wrap:wrap;padding:1rem 1.5rem;
+  border-top:1px solid var(--border);
+}
+.badge{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:0.65rem;letter-spacing:0.08em;text-transform:uppercase;
+  padding:0.3rem 0.6rem;
+  border:1px solid var(--green);color:var(--green);
+  border-radius:2px;
+}
+
+.about-text-col{}
+.about-text-col p{
+  font-size:0.95rem;color:var(--text);line-height:1.9;
+  margin-bottom:1.2rem;
+}
+.trait-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:2rem;
+}
+.trait-item{
+  background:var(--navy-3);
+  border:1px solid var(--border);
+  border-top:2px solid var(--gold);
+  padding:1.2rem;border-radius:3px;
+}
+.trait-title{
+  font-family:'Cinzel',serif;
+  font-size:0.95rem;font-weight:600;color:var(--gold-lt);
+  margin-bottom:0.4rem;
+}
+.trait-desc{font-size:0.8rem;color:var(--text-dim);line-height:1.6;}
+
+/* ── INTERESTS ── */
+#interests{}
+.int-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);}
+.int-card{
+  background:var(--navy);
+  padding:2.2rem 1.8rem;
+  position:relative;overflow:hidden;
+  transition:background 0.25s;
+  cursor:default;
+}
+.int-card:hover{background:var(--navy-2);}
+.int-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--gold);
+  transform:scaleX(0);transform-origin:left;
+  transition:transform 0.35s;
+}
+.int-card:hover::before{transform:scaleX(1);}
+.int-card .bg-num{
+  position:absolute;bottom:-1rem;right:0.5rem;
+  font-family:'Cinzel',serif;font-size:7rem;font-weight:900;
+  color:rgba(184,146,42,0.04);line-height:1;pointer-events:none;
+  user-select:none;
+}
+.int-domain{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:0.65rem;letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--green);margin-bottom:0.7rem;
+}
+.int-icon{font-size:1.8rem;margin-bottom:1rem;display:block;}
+.int-title{
+  font-family:'Cinzel',serif;
+  font-size:1.05rem;font-weight:600;
+  color:#EEF2F7;margin-bottom:0.6rem;letter-spacing:0.02em;
+}
+.int-desc{font-size:0.83rem;color:var(--text-dim);line-height:1.75;}
+
+/* ── PARTNERSHIP ── */
+#partner{background:var(--navy-2);}
+.partner-inner{
+  display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;
+}
+.partner-text{}
+.partner-text p{font-size:0.95rem;color:var(--text);line-height:1.85;margin-bottom:1.1rem;}
+.partner-panel{
+  background:var(--navy-3);
+  border:1px solid var(--border);
+  border-radius:4px;
+  padding:2.5rem;
+  position:relative;overflow:hidden;
+}
+.partner-panel::before{
+  content:'{ }';
+  font-family:'IBM Plex Mono',monospace;
+  font-size:9rem;font-weight:400;
+  color:rgba(61,186,125,0.05);
+  position:absolute;top:-1.5rem;right:-1rem;
+  line-height:1;pointer-events:none;
+}
+.partner-panel-title{
+  font-family:'Cinzel',serif;
+  font-size:1.1rem;font-weight:600;
+  color:var(--gold-lt);margin-bottom:1.5rem;letter-spacing:0.03em;
+}
+.collab-list{list-style:none;display:flex;flex-direction:column;gap:0.9rem;}
+.collab-list li{
+  display:flex;align-items:flex-start;gap:0.8rem;
+  font-size:0.88rem;color:var(--text);line-height:1.6;
+}
+.collab-list li::before{
+  content:'▸';color:var(--green);flex-shrink:0;
+  font-family:'IBM Plex Mono',monospace;
+  margin-top:0.15rem;
+}
+.contact-chip{
+  display:inline-flex;align-items:center;gap:0.6rem;
+  margin-top:2rem;
+  border:1.5px solid var(--green);color:var(--green);
+  padding:0.7rem 1.4rem;border-radius:3px;
+  text-decoration:none;font-size:0.85rem;
+  font-family:'IBM Plex Mono',monospace;letter-spacing:0.06em;
+  transition:all 0.2s;
+}
+.contact-chip:hover{background:var(--green-dim);}
+.contact-chip::before{content:'→';}
+
+/* ── VISION ── */
+#vision{}
+.vision-ticker{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:0.72rem;letter-spacing:0.15em;text-transform:uppercase;
+  color:var(--gold);
+  border:1px solid var(--gold-dim);
+  padding:0.4rem 1rem;
+  display:inline-block;margin-bottom:3rem;
+}
+.vision-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:1.5rem;margin-bottom:3rem;}
+.v-card{
+  border:1px solid var(--border);
+  border-radius:3px;padding:2rem;
+  position:relative;
+  background:var(--navy-2);
+  overflow:hidden;
+}
+.v-card .v-glow{
+  position:absolute;inset:0;
+  background:radial-gradient(circle at top left, var(--green-dim), transparent 60%);
+  pointer-events:none;
+}
+.v-card-icon{font-size:1.6rem;margin-bottom:1rem;}
+.v-card-title{
+  font-family:'Cinzel',serif;
+  font-size:1.05rem;font-weight:600;
+  color:#EEF2F7;margin-bottom:0.5rem;
+}
+.v-card-text{font-size:0.85rem;color:var(--text-dim);line-height:1.75;}
+.vision-quote{
+  border-left:3px solid var(--gold);
+  padding:1.5rem 2rem;
+  background:var(--navy-2);
+  font-family:'Cinzel',serif;
+  font-size:1.15rem;font-style:italic;
+  color:var(--parchment);line-height:1.7;
+}
+
+/* ── FOOTER ── */
+footer{
+  padding:2rem 5vw;
+  border-top:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;
+  flex-wrap:wrap;gap:1rem;
+}
+.f-logo{
+  font-family:'Cinzel',serif;font-weight:900;
+  font-size:0.9rem;letter-spacing:0.2em;
+  color:var(--gold-lt);
+}
+.f-copy{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:0.7rem;letter-spacing:0.1em;
+  color:var(--text-dim);
+}
+.f-status{
+  display:flex;align-items:center;gap:0.5rem;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:0.7rem;color:var(--green);
+}
+.f-status::before{
+  content:'';width:6px;height:6px;border-radius:50%;
+  background:var(--green);
+  box-shadow:0 0 6px var(--green);
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+
+/* ── RESPONSIVE ── */
+@media(max-width:960px){
+  .hero-panel{display:none;}
+  .about-grid{grid-template-columns:1fr;}
+  .about-id-card{position:static;max-width:360px;}
+  .int-grid{grid-template-columns:1fr 1fr;}
+  .partner-inner{grid-template-columns:1fr;}
+  .vision-cards{grid-template-columns:1fr;}
+}
+@media(max-width:560px){
+  .int-grid{grid-template-columns:1fr;}
+  .trait-grid{grid-template-columns:1fr;}
+  .nav-links{display:none;}
+}
+
+/* Scroll reveal */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity 0.65s,transform 0.65s;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#hero" class="nav-logo">F<span>.</span>Ç</a>
+  <ul class="nav-links">
+    <li><a href="#about">Hakkımda</a></li>
+    <li><a href="#interests">İlgi Alanları</a></li>
+    <li><a href="#partner">Ortaklık</a></li>
+    <li><a href="#vision">Vizyon</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <canvas id="map-canvas"></canvas>
+
+  <div class="hero-inner reveal">
+    <div class="hero-coord">
+      LAT 41.0082° N &nbsp;|&nbsp; LON 28.9784° E &nbsp;|&nbsp; <span class="blink">●</span> ONLINE
+    </div>
+    <h1 class="hero-name">
+      FURKAN<br/>
+      <span class="accent">ÇİLESİZ</span>
+    </h1>
+    <div class="hero-sub">
+      <span id="tw-text"></span><span class="cursor"></span>
+    </div>
+    <div class="hero-tags">
+      <span class="h-tag">Tarih</span>
+      <span class="h-tag">Dünya Siyaseti</span>
+      <span class="h-tag">Bilişim</span>
+      <span class="h-tag">Kodlama</span>
+      <span class="h-tag">Girişimcilik</span>
+    </div>
+    <div class="hero-cta">
+      <a href="#partner" class="btn-gold">Ortaklık Teklif Et</a>
+      <a href="#about" class="btn-outline">Beni Tanı</a>
+    </div>
+  </div>
+
+  <!-- Side stats panel -->
+  <div class="hero-panel">
+    <div class="panel-card">
+      <div class="panel-label">Yaş</div>
+      <div class="panel-value">14</div>
+      <div class="panel-sub">08 Şubat 2011</div>
+    </div>
+    <div class="panel-card">
+      <div class="panel-label">Eğitim</div>
+      <div class="panel-value" style="font-size:1rem;line-height:1.4;">9. Sınıf</div>
+      <div class="panel-sub">O.C. Fersoy Anadolu Lisesi</div>
+    </div>
+    <div class="panel-card">
+      <div class="panel-label">Durum</div>
+      <div class="panel-value" style="font-size:1rem;color:var(--green);">Aktif</div>
+      <div class="panel-sub">İş fikirlerine açık</div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-grid reveal">
+    <div class="about-id-card">
+      <div class="id-header">
+        <span class="id-header-title">Kimlik Kartı</span>
+        <span class="id-header-num">#FC-2011</span>
+      </div>
+      <div class="id-avatar">
+        <div class="cross-h"></div>
+        <div class="cross-v"></div>
+        <div class="circle-ring"></div>
+        <span style="position:relative;z-index:1;color:rgba(184,146,42,0.25);font-size:4rem;">FÇ</span>
+      </div>
+      <div class="id-body">
+        <div class="id-row"><span class="key">Ad</span><span class="val">Furkan Çilesiz</span></div>
+        <div class="id-row"><span class="key">D.T.</span><span class="val">08.02.2011</span></div>
+        <div class="id-row"><span class="key">Okul</span><span class="val">O.C. Fersoy A.L.</span></div>
+        <div class="id-row"><span class="key">Sınıf</span><span class="val">9. Sınıf</span></div>
+        <div class="id-row"><span class="key">Durum</span><span class="val" style="color:var(--green);">∙ Aktif</span></div>
+      </div>
+      <div class="badge-row">
+        <span class="badge">Azimli</span>
+        <span class="badge">Cesur</span>
+        <span class="badge">Vizyoner</span>
+      </div>
+    </div>
+
+    <div class="about-text-col">
+      <span class="s-label">Hakkımda</span>
+      <h2 class="s-title">Tarihi okuyan,<br/>dünyayı <span class="gold">kodlayan</span> bir zihin</h2>
+      <p>
+        Merhaba, ben Furkan. Orhan Cemal Fersoy Anadolu Lisesi'nin 9. sınıf öğrencisiyim — ama kafamdaki fikirler çoktan liseden çıktı, dünyayı dolaşmaya başladı.
+      </p>
+      <p>
+        Tarihe olan tutkum bana geçmişin döngülerini öğretti; dünya siyasetini takip etmek ise bu döngülerin bugün nasıl işlediğini. Bilişim ve kodlama ise benim dilim — düşündüklerimi somuta dönüştürdüğüm araç.
+      </p>
+      <p>
+        Bu üç ilgi alanı tesadüfen bir araya gelmedi. Tarih bana strateji öğretti, siyaset eleştirel bakış kazandırdı, teknoloji ise bu birikimi gerçeğe taşıma gücü verdi. Azimle çalışmak ve cesurca karar almak — bu iki özellik her şeyi mümkün kılıyor.
+      </p>
+      <div class="trait-grid">
+        <div class="trait-item">
+          <div class="trait-title">Azim</div>
+          <div class="trait-desc">Hedefe kilitlendim mi, engeller sadece yavaşlatır; durduramaz.</div>
+        </div>
+        <div class="trait-item">
+          <div class="trait-title">Cesaret</div>
+          <div class="trait-desc">Risk almaktan korkmuyorum. Büyük adımlar, cesur kararlarla atılır.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INTERESTS -->
+<section id="interests">
+  <div style="margin-bottom:3rem;" class="reveal">
+    <span class="s-label">İlgi Alanları</span>
+    <h2 class="s-title">Beş <span class="gold">domain,</span> tek vizyon</h2>
+    <p class="s-sub">Farklı görünen bu alanlar aslında aynı soruya farklı cevaplar: Dünya nasıl işliyor ve onu nasıl şekillendirebilirim?</p>
+  </div>
+  <div class="int-grid reveal">
+    <div class="int-card">
+      <div class="bg-num">I</div>
+      <span class="int-domain">history</span>
+      <span class="int-icon">🏛️</span>
+      <div class="int-title">Tarih</div>
+      <p class="int-desc">Geçmişin kalıplarını anlamak, geleceği öngörmek için en güçlü araç. Hangi imparatorluklar neden yıkıldı, hangi kararlar dönüm noktası oldu — bunları bilmek büyük bir avantaj.</p>
+    </div>
+    <div class="int-card">
+      <div class="bg-num">II</div>
+      <span class="int-domain">geopolitics</span>
+      <span class="int-icon">🌍</span>
+      <div class="int-title">Dünya Siyaseti</div>
+      <p class="int-desc">Devletlerin davranışları, ittifakların dili, güç dengelerinin hesabı. Dünya politikasını okumak, satranç tahtasını tüm taşlarıyla görmek gibi.</p>
+    </div>
+    <div class="int-card">
+      <div class="bg-num">III</div>
+      <span class="int-domain">informatics</span>
+      <span class="int-icon">💡</span>
+      <div class="int-title">Bilişim</div>
+      <p class="int-desc">Sistemlerin nasıl çalıştığını anlamak — verinin akışından ağ mimarisine. Bilişim, dijital çağın temel okuryazarlığı ve benim için doğal bir dil.</p>
+    </div>
+    <div class="int-card">
+      <div class="bg-num">IV</div>
+      <span class="int-domain">coding</span>
+      <span class="int-icon">⌨️</span>
+      <div class="int-title">Kodlama</div>
+      <p class="int-desc">Fikirler kod satırlarına dönüştüğünde gerçek olur. Yazılım, düşüncemi somutlaştırdığım en güçlü alan — ve geliştirmeye devam ediyorum.</p>
+    </div>
+    <div class="int-card" style="grid-column:span 2;">
+      <div class="bg-num" style="font-size:5rem;">V</div>
+      <span class="int-domain">entrepreneurship</span>
+      <span class="int-icon">🚀</span>
+      <div class="int-title">Girişimcilik</div>
+      <p class="int-desc">Tarih bilgisi + siyasi analiz + teknik altyapı = girişimcilik için güçlü bir temel. Her türlü iş fikrine ve ortaklığa açığım. Bir fikrin değerini test etmenin en iyi yolu onu hayata geçirmek.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PARTNERSHIP -->
+<section id="partner">
+  <div class="partner-inner reveal">
+    <div class="partner-text">
+      <span class="s-label">Ortaklık</span>
+      <h2 class="s-title">Her türlü iş fikrine <span class="gold">açığım</span></h2>
+      <p>
+        Bir fikir aşamasında olan projen mi var? Teknik destek, araştırma, strateji veya tamamen farklı bir alana ihtiyaç mı duyuyorsun? Benimle konuş.
+      </p>
+      <p>
+        Birlikte çalışmayı sadece para kazanmak için değil, birbirimizden öğrenmek ve gerçek bir şey inşa etmek için doğal buluyorum. Yaşım genç ama kafam açık ve enerjim tam.
+      </p>
+      <a href="mailto:furkan@example.com" class="contact-chip">İletişime Geç</a>
+    </div>
+    <div class="partner-panel">
+      <div class="partner-panel-title">Neyle katkı sunabilirim?</div>
+      <ul class="collab-list">
+        <li>Tarihsel ve jeopolitik araştırma, içerik üretimi</li>
+        <li>Bilişim tabanlı teknik destek ve danışmanlık</li>
+        <li>Kodlama projeleri ve yazılım geliştirme</li>
+        <li>Strateji ve pazar analizi</li>
+        <li>Ortak girişim ve iş ortaklığı fırsatları</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- VISION -->
+<section id="vision">
+  <span class="s-label">Vizyon</span>
+  <h2 class="s-title">Nereye <span class="gold">bakıyorum</span></h2>
+  <p class="s-sub">Hedefler net, yol açık, azim kırılmaz.</p>
+
+  <div class="vision-ticker">STATUS: BUILDING</div>
+
+  <div class="vision-cards reveal">
+    <div class="v-card">
+      <div class="v-glow"></div>
+      <div class="v-card-icon">🗺️</div>
+      <div class="v-card-title">Küresel Perspektif Geliştirmek</div>
+      <p class="v-card-text">Tarih ve dünya siyasetini derinlemesine kavrayarak küresel ölçekte düşünebilen, analitik bir bakış açısı kazanmak istiyorum.</p>
+    </div>
+    <div class="v-card">
+      <div class="v-glow"></div>
+      <div class="v-card-icon">💻</div>
+      <div class="v-card-title">Teknik Derinlik Kazanmak</div>
+      <p class="v-card-text">Kodlama ve bilişim alanındaki bilgimi ileri taşıyarak gerçek projeler üretmek ve teknik kapasitemi profesyonel düzeye çıkarmak.</p>
+    </div>
+    <div class="v-card">
+      <div class="v-glow"></div>
+      <div class="v-card-icon">🤝</div>
+      <div class="v-card-title">Anlamlı Ortaklıklar Kurmak</div>
+      <p class="v-card-text">Farklı alanlardaki insanlarla iş birlikleri geliştirerek hem öğrenmek hem de değer yaratmak istiyorum.</p>
+    </div>
+    <div class="v-card">
+      <div class="v-glow"></div>
+      <div class="v-card-icon">⚡</div>
+      <div class="v-card-title">Girişimci Kimliğini Pekiştirmek</div>
+      <p class="v-card-text">Küçük adımlarla başlayarak, birikimimi ve cesaret eşiğimi her yeni projede biraz daha yükseltmek.</p>
+    </div>
+  </div>
+
+  <div class="vision-quote reveal">
+    "Tarih, siyaset ve kod — üçü birden bana dünyayı okuma ve yeniden yazma gücü veriyor."<br/>
+    <span style="font-size:0.8rem;font-family:'IBM Plex Mono',monospace;color:var(--gold);letter-spacing:0.1em;font-style:normal;"> — Furkan Çilesiz</span>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="f-logo">FURKAN ÇİLESİZ</div>
+  <div class="f-status">Ortaklığa açık</div>
+  <div class="f-copy">© 2025 · Tüm hakları saklıdır</div>
+</footer>
+
+<script>
+/* ── MAP CANVAS ── */
+(function(){
+  const canvas = document.getElementById('map-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, t=0;
+
+  function resize(){
+    W = canvas.width = canvas.offsetWidth;
+    H = canvas.height = canvas.offsetHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    t += 0.003;
+
+    // Meridian lines (vertical)
+    const mCount = 14;
+    for(let i=0;i<=mCount;i++){
+      const x = (i/mCount)*W;
+      const alpha = 0.06 + 0.03*Math.sin(t + i*0.4);
+      ctx.strokeStyle = `rgba(184,146,42,${alpha})`;
+      ctx.lineWidth = 0.8;
+      ctx.beginPath();
+      ctx.moveTo(x,0); ctx.lineTo(x,H);
+      ctx.stroke();
+    }
+    // Parallel lines (horizontal) — slightly curved to suggest globe
+    const pCount = 9;
+    for(let j=0;j<=pCount;j++){
+      const y = (j/pCount)*H;
+      const curve = 24*Math.sin(Math.PI*(j/pCount));
+      const alpha = 0.06 + 0.025*Math.sin(t*0.7 + j*0.5);
+      ctx.strokeStyle = `rgba(184,146,42,${alpha})`;
+      ctx.lineWidth = 0.8;
+      ctx.beginPath();
+      ctx.moveTo(0, y+curve);
+      ctx.quadraticCurveTo(W/2, y-curve, W, y+curve);
+      ctx.stroke();
+    }
+
+    // Glowing dots — "strategic points"
+    const dots = [
+      {rx:0.12,ry:0.35},{rx:0.28,ry:0.28},{rx:0.45,ry:0.42},
+      {rx:0.55,ry:0.32},{rx:0.38,ry:0.6},{rx:0.72,ry:0.45},
+      {rx:0.82,ry:0.3},{rx:0.65,ry:0.62},{rx:0.2,ry:0.65},
+    ];
+    dots.forEach((d,i)=>{
+      const x = d.rx*W, y = d.ry*H;
+      const pulse = 0.5+0.5*Math.sin(t*1.2 + i*1.1);
+      const r = 2+1.5*pulse;
+      // Outer ring
+      ctx.strokeStyle = `rgba(61,186,125,${0.15*pulse})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(x,y,r*3.5,0,Math.PI*2);
+      ctx.stroke();
+      // Core dot
+      ctx.fillStyle = `rgba(61,186,125,${0.5+0.5*pulse})`;
+      ctx.beginPath();
+      ctx.arc(x,y,r,0,Math.PI*2);
+      ctx.fill();
+    });
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ── TYPEWRITER ── */
+(function(){
+  const roles = [
+    "// Tarih Araştırmacısı",
+    "// Jeopolitik Analisti",
+    "// Kodlayan Girişimci",
+    "// Bilişim Meraklısı",
+    "// Ortaklığa Açık",
+  ];
+  let ri=0,ci=0,del=false;
+  const el = document.getElementById('tw-text');
+  function type(){
+    const cur=roles[ri];
+    if(!del){
+      el.textContent=cur.slice(0,++ci);
+      if(ci===cur.length){del=true;setTimeout(type,1800);return;}
+    } else {
+      el.textContent=cur.slice(0,--ci);
+      if(ci===0){del=false;ri=(ri+1)%roles.length;}
+    }
+    setTimeout(type,del?40:70);
+  }
+  type();
+})();
+
+/* ── SCROLL REVEAL ── */
+const obs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});
+},{threshold:0.1});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>
